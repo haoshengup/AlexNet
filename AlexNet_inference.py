@@ -52,12 +52,12 @@ FC8_NODE = 1000
 
 def inference(input):
     with tf.variable_scope('layer1'):
-        weights = tf.get_variable('weights', [CONV1_SIZE, CONV1_SIZE, 227, CONV1_DEEP],\
+        weights = tf.get_variable('weights', [CONV1_SIZE, CONV1_SIZE, 3, CONV1_DEEP],\
                                   initializer=tf.truncated_normal_initializer(stddev=0.1))
         bias = tf.get_variable('bias', [CONV1_DEEP], initializer=tf.constant_initializer(0.1))
         conv1 = tf.nn.conv2d(input, weights, [1, CONV1_STRIDE, CONV1_STRIDE, 1], padding=CONV1_MODE)
         relu1 = tf.nn.relu(tf.nn.bias_add(conv1, bias))
-        pool1 = tf.nn.max_pool(relu1, [1, POOL1_SIZE, POOL1_SIZE, 1], [1, POOL1_STRIDE, POOL1_STRIDE, 1])
+        pool1 = tf.nn.max_pool(relu1, [1, POOL1_SIZE, POOL1_SIZE, 1], [1, POOL1_STRIDE, POOL1_STRIDE, 1], padding='VALID')
 
     with tf.variable_scope('layer2'):
         weights = tf.get_variable('weights', [CONV2_SIZE, CONV2_SIZE, CONV1_DEEP, CONV2_DEEP], \
@@ -65,7 +65,7 @@ def inference(input):
         bias = tf.get_variable('bias', [CONV2_DEEP], initializer=tf.constant_initializer(0.1))
         conv2 = tf.nn.conv2d(pool1, weights, [1, CONV2_STRIDE, CONV2_STRIDE, 1], padding=CONV2_MODE)
         relu2 = tf.nn.relu(tf.nn.bias_add(conv2, bias))
-        pool2 = tf.nn.max_pool(relu2, [1, POOL2_SIZE, POOL2_SIZE, 1], [1, POOL2_STRIDE, POOL2_STRIDE, 1])
+        pool2 = tf.nn.max_pool(relu2, [1, POOL2_SIZE, POOL2_SIZE, 1], [1, POOL2_STRIDE, POOL2_STRIDE, 1], padding='VALID')
 
     with tf.variable_scope('layer3'):
         weights = tf.get_variable('weights', [CONV3_SIZE, CONV3_SIZE, CONV2_DEEP, CONV3_DEEP], \
@@ -87,7 +87,7 @@ def inference(input):
         bias = tf.get_variable('bias', [CONV5_DEEP], initializer=tf.constant_initializer(0.1))
         conv5 = tf.nn.conv2d(relu4, weights, [1, CONV5_STRIDE, CONV5_STRIDE, 1], padding=CONV5_MODE)
         relu5 = tf.nn.relu(tf.nn.bias_add(conv5, bias))
-        pool5 = tf.nn.max_pool(relu5, [1, POOL5_SIZE, POOL5_SIZE, 1], [1, POOL5_STRIDE, POOL5_STRIDE, 1])
+        pool5 = tf.nn.max_pool(relu5, [1, POOL5_SIZE, POOL5_SIZE, 1], [1, POOL5_STRIDE, POOL5_STRIDE, 1], padding='VALID')
         pool5_shape = pool5.get_shape().as_list()
         node = pool5_shape[1] * pool5_shape[2] * pool5_shape[3]
         pool5_reshape = tf.reshape(pool5, [pool5_shape[0], node])
